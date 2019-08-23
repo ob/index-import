@@ -32,7 +32,7 @@ jobs:
       downloadPath: 'downloads' 
 
   - script: |
-      tar -x -v -f downloads/llvm-*.lrzip --use-compress-program lrzip
+      lrzcat downloads/llvm-*.lrzip | tar xvf -
     displayName: 'Unpack LLVM Dependency'
 
   - script: |
