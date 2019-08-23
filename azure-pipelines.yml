@@ -27,7 +27,7 @@ jobs:
       connection: GHRelease
       userRepository: ob/swift-prebuilt
       defaultVersionType: 'specificTag' # Options: latest, specificVersion, specificTag
-      version: 'swift-5.0.1-RELEASE-20190823.1' # Required when defaultVersionType != Latest
+      version: 'swift-5.0.1-RELEASE-20190823.2' # Required when defaultVersionType != Latest
       itemPattern: 'llvm-*.lrzip' # Optional
       downloadPath: 'downloads' 
 
