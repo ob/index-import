@@ -32,12 +32,12 @@ jobs:
       downloadPath: 'downloads' 
 
   - script: |
-      lrzcat downloads/llvm-*.lrzip | tar xvf -
+      lrzcat downloads/llvm-*.lrzip | tar -C /tmp -x -v -f -
     displayName: 'Unpack LLVM Dependency'
 
   - script: |
       mkdir build
-      (cd build ; PATH=../llvm-macosx-x86_64/bin:$PATH cmake -G Ninja -DCMAKE_BUILD_TYPE=Release ..)
+      (cd build ; PATH=/tmp/llvm-macosx-x86_64/bin:$PATH cmake -G Ninja -DCMAKE_BUILD_TYPE=Release ..)
     displayName: 'Building index-import'
 
   - task: GitHubRelease@0
