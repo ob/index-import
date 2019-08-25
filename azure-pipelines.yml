@@ -38,7 +38,7 @@ jobs:
 
   - script: |
       mkdir build
-      (cd build ; PATH=/tmp/llvm-macosx-x86_64/bin:$PATH cmake -G Ninja -DCMAKE_BUILD_TYPE=Release ..)
+      (cd build ; PATH=/tmp/swift-source/build/Ninja-RelWithDebInfoAssert/llvm-macosx-x86_64/bin:$PATH cmake -G Ninja -DCMAKE_BUILD_TYPE=Release ..)
     displayName: 'Building index-import'
 
   - task: GitHubRelease@0
