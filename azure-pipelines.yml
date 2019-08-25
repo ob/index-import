@@ -32,7 +32,7 @@ jobs:
       downloadPath: 'downloads' 
 
   - script: |
-      lrzcat downloads/swift-source.lrzip | tar -C /tmp -x -v- f -
+      lrzcat downloads/swift-source.tar.lrzip | tar -C /tmp -x -v- f -
       lrzcat downloads/llvm-*.lrzip | tar -C /tmp/swift-source -x -v -f -
     displayName: 'Unpack Dependencies'
 
