@@ -28,12 +28,13 @@ jobs:
       userRepository: ob/swift-prebuilt
       defaultVersionType: 'specificTag' # Options: latest, specificVersion, specificTag
       version: 'swift-5.0.1-RELEASE-20190823.2' # Required when defaultVersionType != Latest
-      itemPattern: 'llvm-*.lrzip' # Optional
+      itemPattern: '*.lrzip' # Optional
       downloadPath: 'downloads' 
 
   - script: |
-      lrzcat downloads/llvm-*.lrzip | tar -C /tmp -x -v -f -
-    displayName: 'Unpack LLVM Dependency'
+      lrzcat downloads/swift-source.lrzip | tar -C /tmp -x -v- f -
+      lrzcat downloads/llvm-*.lrzip | tar -C /tmp/swift-source -x -v -f -
+    displayName: 'Unpack Dependencies'
 
   - script: |
       mkdir build
