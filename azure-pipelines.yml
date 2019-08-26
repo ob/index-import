@@ -40,6 +40,7 @@ jobs:
       mkdir build
       (cd build ; PATH=/tmp/swift-source/build/Ninja-RelWithDebInfoAssert/llvm-macosx-x86_64/bin:$PATH cmake -G Ninja -DCMAKE_BUILD_TYPE=Release ..)
       (cd build ; ninja)
+      (cd build ; zip index-import.zip index-import)
     displayName: 'Building index-import'
 
   - task: GitHubRelease@0
@@ -50,7 +51,7 @@ jobs:
       target: '$(Build.SourceVersion)' # Required when action == Create || Action == Edit
       tagSource: 'manual' # Required when action == Create# Options: auto, manual
       tag: 'v5.0.1-$(Build.BuildNumber)'
-      assets: 'build/index-import'
+      assets: 'build/index-import.zip'
       #releaseNotesSource: 'file' # Optional. Options: file, input
       #releaseNotesFile: '' # Optional
 
