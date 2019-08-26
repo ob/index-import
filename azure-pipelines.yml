@@ -44,7 +44,7 @@ jobs:
     displayName: 'Building index-import'
 
   - script: |
-      (cd tests ; ./run.sh)
+      (cd tests ; PATH=/tmp/swift-source/build/Ninja-RelWithDebInfoAssert/llvm-macosx-x86_64/bin:$PATH ./run.sh)
     displayName: 'Testing index-import'
 
   - task: GitHubRelease@0
