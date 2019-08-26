@@ -43,6 +43,10 @@ jobs:
       (cd build ; zip index-import.zip index-import)
     displayName: 'Building index-import'
 
+  - script: |
+      (cd tests ; ./run.sh)
+    displayName: 'Testing index-import'
+
   - task: GitHubRelease@0
     inputs:
       gitHubConnection: GHRelease
