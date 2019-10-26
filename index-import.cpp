@@ -33,10 +33,6 @@ static cl::list<std::string> InputIndexPaths(cl::Positional, cl::OneOrMore,
 static cl::opt<std::string> OutputIndexPath(cl::Positional, cl::Required,
                                             cl::desc("<output-indexstore>"));
 
-static cl::opt<bool> Verbose("verbose",
-                             cl::desc("Print path remapping results"));
-static cl::alias VerboseAlias("V", cl::aliasopt(Verbose));
-
 static cl::opt<unsigned> ParallelStride(
     "parallel-stride", cl::init(32),
     cl::desc(
@@ -105,13 +101,6 @@ static IndexUnitWriter remapUnit(const std::unique_ptr<IndexUnitReader> &reader,
   auto mainFilePath = remapper.remap(reader->getMainFilePath());
   auto sysrootPath = remapper.remap(reader->getSysrootPath());
 
-  if (Verbose) {
-    outs() << "MainFilePath: " << mainFilePath << "\n"
-           << "OutputFile: " << outputFile << "\n"
-           << "WorkingDir: " << workingDir << "\n"
-           << "SysrootPath: " << sysrootPath << "\n";
-  }
-
   auto &fsOpts = fileMgr.getFileSystemOpts();
   fsOpts.WorkingDir = workingDir;
 
@@ -137,10 +126,6 @@ static IndexUnitWriter remapUnit(const std::unique_ptr<IndexUnitReader> &reader,
       file = fileMgr.getVirtualFile(filePath, /*size*/ 0, /*mod time*/ 0);
     }
 
-    if (Verbose) {
-      outs() << "DependencyFilePath: " << filePath << "\n";
-    }
-
     switch (info.Kind) {
     case IndexUnitReader::DependencyKind::Unit: {
       // The UnitOrRecordName from the input is not used. This is because the
@@ -151,9 +136,6 @@ static IndexUnitWriter remapUnit(const std::unique_ptr<IndexUnitReader> &reader,
       SmallString<128> unitName;
       if (name != "") {
         writer.getUnitNameForOutputFile(filePath, unitName);
-        if (Verbose) {
-          outs() << "DependencyUnitName: " << unitName << "\n";
-        }
       }
 
       writer.addUnitDependency(unitName, file, isSystem, moduleNameRef);
@@ -170,9 +152,12 @@ static IndexUnitWriter remapUnit(const std::unique_ptr<IndexUnitReader> &reader,
   });
 
   reader->foreachInclude([&](const IndexUnitReader::IncludeInfo &info) {
-    // Note this isn't revelevnt to Swift.
-    writer.addInclude(fileMgr.getFile(info.SourcePath), info.SourceLine,
-                      fileMgr.getFile(info.TargetPath));
+    const auto sourcePath = remapper.remap(info.SourcePath);
+    const auto targetPath = remapper.remap(info.TargetPath);
+
+    // Note this isn't relevant to Swift.
+    writer.addInclude(fileMgr.getFile(sourcePath), info.SourceLine,
+                      fileMgr.getFile(targetPath));
     return true;
   });
 
@@ -255,11 +240,6 @@ static std::string normalizePath(StringRef Path) {
 static bool remapIndex(const Remapper &remapper,
                        const std::string &InputIndexPath,
                        const std::string &outputIndexPath) {
-  if (Verbose) {
-    outs() << "Remapping Index Store at: '" << InputIndexPath << "' to '"
-           << OutputIndexPath << "'\n";
-  }
-
   SmallString<256> unitDirectory;
   path::append(unitDirectory, InputIndexPath, "v5", "units");
   SmallString<256> recordsDirectory;
@@ -298,9 +278,6 @@ static bool remapIndex(const Remapper &remapper,
              << unitReadError;
       success = false;
       continue;
-    }
-    if (Verbose) {
-      outs() << "Remapping file " << unitPath << "\n";
     }
 
     ModuleNameScope moduleNames;
@@ -364,9 +341,9 @@ int main(int argc, char **argv) {
     bool success = true;
     for (auto &InputIndexPath : InputIndexPaths) {
       InputIndexPath = normalizePath(InputIndexPath);
-
-      if (not remapIndex(remapper, InputIndexPath, OutputIndexPath))
+      if (not remapIndex(remapper, InputIndexPath, OutputIndexPath)) {
         success = false;
+      }
     }
     return success ? EXIT_SUCCESS : EXIT_FAILURE;
   }
@@ -382,10 +359,11 @@ int main(int argc, char **argv) {
     const size_t end = std::min(start + stride, length);
     for (size_t index = start; index < end; ++index) {
       std::string InputIndexPath = normalizePath(InputIndexPaths[index]);
-
-      if (not remapIndex(remapper, InputIndexPath, OutputIndexPath))
+      if (not remapIndex(remapper, InputIndexPath, OutputIndexPath)) {
         success = false;
+      }
     }
   });
+
   return success ? EXIT_SUCCESS : EXIT_FAILURE;
 }
